@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clube de Tabuleiro Iroko — Rumo às 4000 partidas!</title>
+  <meta name="description" content="Celebração das 4000 partidas do Clube de Tabuleiro Iroko. Acompanhe o contador, veja fotos e cadastre novos jogadores." />
+  <style>
+    :root {
+      --bg: #0f172a; /* slate-900 */
+      --card: #111827; /* gray-900 */
+      --text: #e5e7eb; /* gray-200 */
+      --muted: #9ca3af; /* gray-400 */
+      --primary: #22d3ee; /* cyan-400 */
+      --secondary: #a78bfa; /* violet-400 */
+      --accent: #f59e0b; /* amber-500 */
+      --success: #10b981; /* emerald-500 */
+      --danger: #ef4444; /* red-500 */
+      --shadow: 0 10px 25px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+      background: radial-gradient(1200px 600px at 20% 0%, #0b1021 0%, var(--bg) 40%, #0b1021 100%);
+      color: var(--text);
+    }
+    header {
+      position: sticky; top: 0;
+      backdrop-filter: blur(8px);
+      background: rgba(17,24,39,0.6);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      z-index: 50;
+    }
+    .nav { max-width: 1100px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; gap: 12px; align-items: center; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; font-size: 14px; }
+    .brand .logo { width: 36px; height: 36px; border-radius: 8px; overflow: hidden; box-shadow: 0 6px 18px rgba(34, 211, 238, .20), 0 4px 12px rgba(167, 139, 250, .20); }
+    .brand .logo img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    nav a { color: var(--text); text-decoration: none; font-weight: 600; margin-left: 18px; }
+    nav a:hover { color: var(--primary); }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .hero { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 28px; align-items: center; margin-top: 30px; }
+    @media (max-width: 860px) { .hero { grid-template-columns: 1fr; } }
+
+    .card { background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; box-shadow: var(--shadow); }
+    .panel { padding: 24px; }
+
+    h1 { font-size: clamp(28px, 4vw, 48px); line-height: 1.1; margin: 0 0 12px 0; background: linear-gradient(90deg, #fff, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    h2 { font-size: clamp(20px, 3vw, 28px); }
+    .subtitle { color: var(--muted); font-size: 16px; }
+
+    .counter-wrap { margin-top: 22px; display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; }
+    .counter { font-variant-numeric: tabular-nums; font-size: clamp(40px, 7vw, 72px); font-weight: 900; letter-spacing: -1px; }
+
+    .progress { margin-top: 16px; height: 14px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; outline: 1px solid rgba(255,255,255,0.08); }
+    .progress > .bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary)); box-shadow: 0 8px 20px rgba(34,211,238,.4), 0 6px 16px rgba(167,139,250,.35); transition: width .4s ease; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+    .btn { padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); color: #0b1021; text-decoration: none; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--primary)); box-shadow: var(--shadow); transition: transform .08s ease, filter .2s ease; display: inline-flex; align-items: center; gap: 10px; }
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+    .btn.secondary { background: linear-gradient(135deg, var(--secondary), var(--success)); }
+    .btn.ghost { background: transparent; color: var(--text); border-color: rgba(255,255,255,0.18); }
+
+    .tile { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 860px) { .tile { grid-template-columns: 1fr; } }
+    .tile .panel { padding: 20px; }
+    .kpi { display: flex; align-items: center; gap: 14px; }
+    .kpi .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(245, 158, 11, .2); }
+
+    footer { margin-top: 40px; padding: 24px; color: var(--muted); text-align: center; }
+
+    /* Confetti canvas */
+    #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+
+    /* Sessão idealizador */
+    .idealizador { margin-top: 28px; }
+    .idealizador .bio { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: start; }
+    .idealizador .avatar { width: 96px; height: 96px; border-radius: 12px; background: rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-weight:800; color: var(--text); }
+    .tag { display:inline-block; padding: 6px 10px; border-radius: 999px; font-weight:700; font-size:12px; background: rgba(34, 211, 238, .15); color: var(--primary); border: 1px solid rgba(34,211,238,.3); }
+    .list { margin: 10px 0 0 0; padding-left: 18px; }
+    .list li { margin: 6px 0; color: var(--text); }
+
+    /* ===== Fundo com imagem e overlay na seção #contador ===== */
+    #contador {
+      background-image: url("https://i.ibb.co/fVnGYGZc/banner-iroko.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+      overflow: hidden;
+    }
+    #contador::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.50));
+    }
+    #contador .panel,
+    #contador .counter-wrap,
+    #contador .progress,
+    #contador aside { position: relative; z-index: 1; }
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.ibb.co/qF0Q8r7j/logooooiko.jpg" alt="Logo Clube de Tabuleiro Iroko" />
+        </div>
+        <span>Clube de Tabuleiro Iroko</span>
+      </div>
+      <nav>
+        <a href="#contador">Contador</a>
+        <a href="#links">Links</a>
+        <a href="#idealizador">Idealizador</a>
+        <a href="#sobre">Sobre</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero card" id="contador">
+      <div class="panel">
+        <h1>Rumo às <strong>4000 partidas</strong> 🎉</h1>
+        <p class="subtitle">Acompanhe o progresso do clube desde 3900 até o marco histórico de 4000 partidas. Atualize o contador a cada nova jogatina!</p>
+
+        <div class="counter-wrap">
+          <div class="counter" aria-live="polite"><span id="count">3900</span> partidas</div>
+          <div class="actions">
+            <button class="btn" id="add1" title="Registrar +1 partida">+1 partida</button>
+            <button class="btn ghost" id="reset" title="Reiniciar para 3900">Reiniciar</button>
+          </div>
+        </div>
+
+        <div class="progress" aria-label="Progresso até 4000">
+          <div class="bar" id="bar"></div>
+        </div>
+
+        <div class="tile" style="margin-top:22px">
+          <div class="panel card">
+            <div class="kpi">
+              <div class="dot" style="background: var(--primary)"></div>
+              <div>
+                <div style="font-weight:800">Meta</div>
+                <div style="color: var(--muted)">4000 partidas</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel card">
+            <div class="kpi">
+              <div class="dot" style="background: var(--success)"></div>
+              <div>
+                <div style="font-weight:800">Falta</div>
+                <div style="color: var(--muted)"><span id="missing">100</span> partidas</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <div class="card panel" id="links">
+          <h2 style="margin-top:0">Links rápidos</h2>
+          <p class="subtitle">Centralize tudo em um só lugar: fotos das partidas e cadastro de novos jogadores.</p>
+          <div class="actions">
+            <a class="btn" id="link-fotos" href="https://drive.google.com/drive/folders/SEU_LINK_DO_DRIVE_AQUI" target="_blank" rel="noopener">📸 Ver fotos das partidas</a>
+            <a class="btn secondary" id="link-cadastro" href="https://forms.gle/SEU_LINK_DO_FORMULARIO_AQUI" target="_blank" rel="noopener">📝 Cadastrar novos jogadores</a>
+          </div>
+          <p class="subtitle" style="margin-top:10px">Substitua os links acima pelo seu Google Drive e seu formulário de cadastro.</p>
+        </div>
+
+        <div class="card panel idealizador" id="idealizador" style="margin-top:16px">
+          <h2 style="margin-top:0">Idealizador do Clube</h2>
+          <div class="bio">
+            <img src="https://i.ibb.co/G3kxrWXC/miro.jpg" alt="Foto do idealizador" />
+          </div>
+          <div>
+            <div class="tag">Idealizador</div>
+            <h3 style="margin:8px 0 6px 0">MIRO CARVALHO</h3>
+            <p class="subtitle"> <span class="red">Fundador do Clube de Tabuleiro Iroko, responsável por organizar encontros, acolher novos jogadores e registrar o histórico de partidas do clube.</span></p>
+            <ul class="list">
+              <li><strong>Motivos:</strong> promover convivência, estimular pensamento estratégico, apresentar jogos modernos e criar um espaço inclusivo para todos os interessados.</li>
+              <li><strong>Local do clube:</strong> Francisco Morato, SP (encontros regulares — Jardim Luiza_ Rua Luzitana, 281 CEP:07997-040).</li>
+              <li><strong>Perfil:</strong> Maiores de 16 anos, horários agendados de jogatina de acordo com o formulário.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card panel" id="sobre" style="margin-top:16px">
+          <h2 style="margin-top:0">Sobre o Iroko</h2>
+          <p>O Clube de Tabuleiro Iroko é uma comunidade apaixonada por jogos modernos, eurogames, X1 games e clássicos. Organizamos encontros regulares, incentivamos novos jogadores e registramos cada partida rumo às grandes metas coletivas!</p>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      © <span id="year"></span> Clube de Tabuleiro Iroko · Feito com estratégia, diversão e amizade.
+    </footer>
+  </main>
+
+  <script>
+    // ====== Contador com persistência (localStorage) ======
+    const START = 3900;
+    const GOAL = 4000;
+    const countEl = document.getElementById('count');
+    const barEl = document.getElementById('bar');
+    const missingEl = document.getElementById('missing');
+    const add1Btn = document.getElementById('add1');
+    const resetBtn = document.getElementById('reset');
+    const yearEl = document.getElementById('year');
+    yearEl.textContent = new Date().getFullYear();
+
+    function getCount() {
+      const saved = localStorage.getItem('iroko.count');
+      const n = saved ? parseInt(saved, 10) : START;
+      return Number.isFinite(n) ? n : START;
+    }
+    function setCount(n) {
+      localStorage.setItem('iroko.count', String(n));
+      render(n);
+    }
+    function render(n) {
+      countEl.textContent = n;
+      const pct = Math.max(0, Math.min(100, ((n - START) / (GOAL - START)) * 100));
+      barEl.style.width = pct + '%';
+      missingEl.textContent = Math.max(0, GOAL - n);
+    }
+    // Inicializa
+    render(getCount());
+    add1Btn.addEventListener('click', () => {
+      let n = getCount() + 1;
+      setCount(n);
+      if (n >= GOAL) { celebrate(); }
+    });
+    resetBtn.addEventListener('click', () => { setCount(START); });
+
+    // ====== Confete simples quando atingir a meta ======
+    const confettiCanvas = document.getElementById('confetti');
+    const ctx = confettiCanvas.getContext('2d');
+    let particles = [];
+    let confettiActive = false;
+    function resizeCanvas() { confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function makeParticle() {
+      const colors = ['#22d3ee', '#a78bfa', '#f59e0b', '#10b981', '#ef4444', '#fde68a'];
+      return {
+        x: Math.random() * confettiCanvas.width,
+        y: -10,
+        r: 4 + Math.random() * 6,
+        c: colors[Math.floor(Math.random() * colors.length)],
+        vx: -2 + Math.random() * 4,
+        vy: 2 + Math.random() * 3,
+        life: 80 + Math.random() * 60
+      };
+    }
+
+    function celebrate() {
+      if (confettiActive) return;
+      confettiActive = true;
+      particles = Array.from({length: 220}, makeParticle);
+      let frames = 0;
+      const maxFrames = 240;
+      function step() {
+        ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+        particles.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.03; // gravidade
+          p.life -= 1;
+          ctx.beginPath();
+          ctx.fillStyle = p.c; ctx.globalAlpha = Math.max(0, p.life / 140);
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+        });
+        particles = particles.filter(p => p.life > 0 && p.y < confettiCanvas.height + 20);
+        frames++;
+        if (frames < maxFrames) { requestAnimationFrame(step); }
+        else { ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height); confettiActive = false; }
+      }
+      step();
+    }
+
+    // Se já estiver em 4000 ao carregar, comemora.
+    if (getCount() >= GOAL) { setTimeout(celebrate, 600); }
+  </script>
+</body>
+</html>
